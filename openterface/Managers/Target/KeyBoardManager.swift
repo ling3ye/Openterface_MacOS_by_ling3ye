@@ -23,6 +23,7 @@
 import Cocoa
 import Carbon.HIToolbox
 
+
 class KeyboardManager {
     static let SHIFT_KEYS = ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "{", "}", "|", ":", "\"", "<", ">", "?"]
     static let shared = KeyboardManager()

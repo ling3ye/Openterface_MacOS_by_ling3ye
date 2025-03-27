@@ -23,6 +23,8 @@
 import Darwin
 import AppKit
 import Carbon.HIToolbox
+// 德国键盘特殊键定义
+let kVK_ISO_Section: Int = 0x0A // 德国键盘上Shift和Y之间的ISO键
 
 extension String {
     func padLeftWithZeros(toLength length: Int) -> String {
@@ -143,7 +145,8 @@ class KeyboardMapper {
         UInt16(kVK_Option): 0xE2, // Left Option, Left Alt
         UInt16(kVK_RightOption): 0xE6, // Right Option, Right Alt
         UInt16(kVK_Command): 0xE3, // Left Command, Left Win
-        UInt16(kVK_RightCommand): 0xE7  // Right Command, Right Win
+        UInt16(kVK_RightCommand): 0xE7,  // Right Command, Right Win
+        UInt16(kVK_ISO_Section): 0x64, // ISO Section
     ]
 
     let charMapping: [UInt16: UInt8] = [
