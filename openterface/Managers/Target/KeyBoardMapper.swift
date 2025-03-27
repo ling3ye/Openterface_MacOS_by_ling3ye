@@ -23,6 +23,16 @@
 import Darwin
 import AppKit
 
+extension String {
+    func padLeftWithZeros(toLength length: Int) -> String {
+        let paddingLength = length - self.count
+        if paddingLength > 0 {
+            return String(repeating: "0", count: paddingLength) + self
+        }
+        return self
+    }
+}
+
 class KeyboardMapper {
     let spm = SerialPortManager.shared
     
@@ -279,14 +289,7 @@ class KeyboardMapper {
         let rightOptionValue: UInt = 0x00080140
         
         let rawValue = modifiers.rawValue
-        // 输出修饰键的原始值（rawValue）
-        let hexString = String(format: "0x%08X", rawValue)
-        let binaryString = String(format: "%032b", rawValue)
-        let formattedBinary = binaryString.enumerated().map { index, char in
-            return index % 4 == 0 && index > 0 ? " \(char)" : String(char)
-        }.joined()
-        
-        Logger.shared.log(content: "✈️✈️✈️✈️修饰键原始值: 十六进制 = \(hexString), 二进制 = \(formattedBinary)")
+
         
         // 判断Shift键
         if modifiers.contains(.shift) {
@@ -338,8 +341,11 @@ class KeyboardMapper {
         
         Logger.shared.log(content: "修饰键原始值: \(rawValue), 组合后的修饰键值: \(combinedModifiers)")
         // 输出修饰键的二进制表示
-
-
+        // 将修饰键值转换为二进制字符串并输出
+        let binaryString = String(combinedModifiers, radix: 2).padLeftWithZeros(toLength: 8)
+        let spacedBinary = binaryString.map { String($0) }.joined(separator: " ")
+        Logger.shared.log(content: "修饰键二进制表示: \(spacedBinary)")
+        
         keyDat[5] = combinedModifiers
         
         //        if isRelease {
