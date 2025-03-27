@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Always respond in 中文
+这是一个在MacOS系统上使用的APP，而不是IOS，请不要使用IOS的方法，不要使用iOS专用的AVAudioSessionAPI，用在这里行不通的。
+'AVAudioSession' is unavailable in macOS
+'InterruptionReason' is unavailable in macOS
