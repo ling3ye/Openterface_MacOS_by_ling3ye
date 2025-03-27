@@ -21,6 +21,7 @@
 */
 
 import Cocoa
+import Carbon.HIToolbox
 
 class KeyboardManager {
     static let SHIFT_KEYS = ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "{", "}", "|", ":", "\"", "<", ">", "?"]
@@ -69,159 +70,45 @@ class KeyboardManager {
     }
 
     func monitorKeyboardEvents() {
+        // 用于跟踪当前按下的修饰键
+        var currentModifiers: NSEvent.ModifierFlags = []
+        
         NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged]) { event in
+            // 检查是否有任何修饰键状态变化
             let modifiers = event.modifierFlags
             let modifierDescription = self.modifierFlagsDescription(modifiers)
             Logger.shared.log(content: "Modifier flags changed: \(modifierDescription), CapsLock toggle: \(modifiers.contains(.capsLock))")
             
-            // Handle Shift keys
-            if modifiers.contains(.shift) {
-                let rawValue = modifiers.rawValue
-                if rawValue & 0x102 == 0x102 { // Left Shift
-                    if !self.pressedKeys.contains(56) {
-                        if let index = self.pressedKeys.firstIndex(of: 255) {
-                            self.pressedKeys[index] = 56
-                            self.kbm.pressKey(keys: self.pressedKeys, modifiers: [])
-                        }
-                    }
-                } else if (rawValue & 0x104 == 0x104) { // Right Shift
-                    if !self.pressedKeys.contains(60) {
-                        if let index = self.pressedKeys.firstIndex(of: 255) {
-                            self.pressedKeys[index] = 60
-                            self.kbm.pressKey(keys: self.pressedKeys, modifiers: [])
-                        }
-                    }
+            // 只在控制模式下处理修饰键
+            if AppStatus.isControlling {
+                // 更新当前的修饰键状态
+                currentModifiers = modifiers
+                
+                // 如果有非修饰键在pressedKeys中，则使用新的修饰键状态更新它们
+                let nonModifierKeysPressed = self.pressedKeys.contains { $0 != 255 && 
+                    $0 != UInt16(kVK_Shift) && 
+                    $0 != UInt16(kVK_RightShift) && 
+                    $0 != UInt16(kVK_Control) && 
+                    $0 != UInt16(kVK_RightControl) && 
+                    $0 != UInt16(kVK_Option) && 
+                    $0 != UInt16(kVK_RightOption) && 
+                    $0 != UInt16(kVK_Command) && 
+                    $0 != UInt16(kVK_RightCommand) && 
+                    $0 != UInt16(kVK_CapsLock) }
+                
+                if nonModifierKeysPressed {
+                    // 发送带有更新后修饰键状态的非修饰键
+                    self.kbm.pressKey(keys: self.pressedKeys, modifiers: modifiers)
                 }
-            } else {
-                // Release Shift keys
-                if self.pressedKeys.contains(56) {
-                    if let index = self.pressedKeys.firstIndex(of: 56) {
-                        self.pressedKeys[index] = 255
-                        self.kbm.releaseKey(keys: self.pressedKeys)
-                    }
-                }
-                if self.pressedKeys.contains(60) {
-                    if let index = self.pressedKeys.firstIndex(of: 60) {
-                        self.pressedKeys[index] = 255
-                        self.kbm.releaseKey(keys: self.pressedKeys)
-                    }
+                
+                // 专门处理CapsLock键，因为它是一个切换键
+                if modifiers.contains(.capsLock) && !currentModifiers.contains(.capsLock) {
+                    self.kbm.pressKey(keys: [UInt16(kVK_CapsLock)], modifiers: [])
+                    Thread.sleep(forTimeInterval: 0.01)
+                    self.kbm.releaseKey(keys: [UInt16(kVK_CapsLock)])
                 }
             }
             
-            // Handle Control keys
-            if modifiers.contains(.control) {
-                let rawValue = modifiers.rawValue
-                if (rawValue & 0x101) == 0x101 { // Left Control
-                    if !self.pressedKeys.contains(59) {
-                        if let index = self.pressedKeys.firstIndex(of: 255) {
-                            self.pressedKeys[index] = 59
-                            self.kbm.pressKey(keys: self.pressedKeys, modifiers: [])
-                        }
-                    }
-                } else if (rawValue & 0x2100) == 0x2100 { // Right Control
-                    if !self.pressedKeys.contains(62) {
-                        if let index = self.pressedKeys.firstIndex(of: 255) {
-                            self.pressedKeys[index] = 62
-                            self.kbm.pressKey(keys: self.pressedKeys, modifiers: [])
-                        }
-                    }
-                }
-            } else {
-                // Release Control keys
-                if self.pressedKeys.contains(59) {
-                    if let index = self.pressedKeys.firstIndex(of: 59) {
-                        self.pressedKeys[index] = 255
-                        self.kbm.releaseKey(keys: self.pressedKeys)
-                    }
-                }
-                if self.pressedKeys.contains(62) {
-                    if let index = self.pressedKeys.firstIndex(of: 62) {
-                        self.pressedKeys[index] = 255
-                        self.kbm.releaseKey(keys: self.pressedKeys)
-                    }
-                }
-            }
-            
-            // Handle Option/Alt keys
-            if modifiers.contains(.option) {
-                let rawValue = modifiers.rawValue
-                if (rawValue & 0x120) == 0x120 { // Left Option
-                    if !self.pressedKeys.contains(58) {
-                        if let index = self.pressedKeys.firstIndex(of: 255) {
-                            self.pressedKeys[index] = 58
-                            self.kbm.pressKey(keys: self.pressedKeys, modifiers: [])
-                        }
-                    }
-                } else if (rawValue & 0x140) == 0x140 { // Right Option
-                    if !self.pressedKeys.contains(61) {
-                        if let index = self.pressedKeys.firstIndex(of: 255) {
-                            self.pressedKeys[index] = 61
-                            self.kbm.pressKey(keys: self.pressedKeys, modifiers: [])
-                        }
-                    }
-                }
-            } else {
-                // Release Option keys
-                if self.pressedKeys.contains(58) {
-                    if let index = self.pressedKeys.firstIndex(of: 58) {
-                        self.pressedKeys[index] = 255
-                        self.kbm.releaseKey(keys: self.pressedKeys)
-                    }
-                }
-                if self.pressedKeys.contains(61) {
-                    if let index = self.pressedKeys.firstIndex(of: 61) {
-                        self.pressedKeys[index] = 255
-                        self.kbm.releaseKey(keys: self.pressedKeys)
-                    }
-                }
-            }
-            
-            // Handle Command keys
-            if modifiers.contains(.command) {
-                let rawValue = modifiers.rawValue
-                if (rawValue & 0x108) == 0x108 { // Left Command
-                    if !self.pressedKeys.contains(55) {
-                        if let index = self.pressedKeys.firstIndex(of: 255) {
-                            self.pressedKeys[index] = 55
-                            self.kbm.pressKey(keys: self.pressedKeys, modifiers: [])
-                        }
-                    }
-                } else if (rawValue & 0x110) == 0x110 { // Right Command
-                    if !self.pressedKeys.contains(54) {
-                        if let index = self.pressedKeys.firstIndex(of: 255) {
-                            self.pressedKeys[index] = 54
-                            self.kbm.pressKey(keys: self.pressedKeys, modifiers: [])
-                        }
-                    }
-                }
-            } else {
-                // Release Command keys
-                if self.pressedKeys.contains(55) {
-                    if let index = self.pressedKeys.firstIndex(of: 55) {
-                        self.pressedKeys[index] = 255
-                        self.kbm.releaseKey(keys: self.pressedKeys)
-                    }
-                }
-                if self.pressedKeys.contains(54) {
-                    if let index = self.pressedKeys.firstIndex(of: 54) {
-                        self.pressedKeys[index] = 255
-                        self.kbm.releaseKey(keys: self.pressedKeys)
-                    }
-                }
-            }
-            
-            // Handle capsLock keys
-            if modifiers.contains(.capsLock) {
-                if !self.pressedKeys.contains(57) {
-                    if let index = self.pressedKeys.firstIndex(of: 255) {
-                        self.pressedKeys[index] = 57
-                        self.kbm.pressKey(keys: self.pressedKeys, modifiers: [])
-
-                        self.pressedKeys[index] = 255
-                        self.kbm.releaseKey(keys: self.pressedKeys)
-                    }
-                }
-            }
             return nil
         }
         
@@ -232,7 +119,7 @@ class KeyboardManager {
             // Log the key press with its keycode
             Logger.shared.log(content: "Key pressed: keyCode=\(event.keyCode), modifiers=\(modifierDescription)")
             
-            if event.keyCode == 53 {
+            if event.keyCode == UInt16(kVK_Escape) {
                 for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local }) {
                     w.close()
                     AppStatus.isAreaOCRing = false
@@ -248,49 +135,105 @@ class KeyboardManager {
                         if event.timestamp - self.escKeyDownTimeStart < 2 {
 
                             AppStatus.isExit = true
-                            AppStatus.isCursorHidden = false
-                            AppStatus.isFouceWindow = false
-                            NSCursor.unhide()
-
-                            if let handler = AppStatus.eventHandler {
-                                NSEvent.removeMonitor(handler)
-                                eventHandler = nil
-                                // AppStatus.isExit = true
-                            }
+                            
                         }
                         self.escKeyDownCounts = 0
                     }
-                    else
-                    {
-                        self.escKeyDownCounts = self.escKeyDownCounts + 1
+                    else {
+                        if event.timestamp - self.escKeyDownTimeStart < 2 {
+                            self.escKeyDownCounts = self.escKeyDownCounts + 1
+                        }
+                        else {
+                            self.escKeyDownCounts = 1
+                            self.escKeyDownTimeStart = event.timestamp
+                        }
+                    }
+                }
+                return event
+            }
+            
+            if AppStatus.isControlling {
+                // 检查按下的键是否是修饰键
+                let isModifierKey = 
+                    event.keyCode == UInt16(kVK_Shift) ||
+                    event.keyCode == UInt16(kVK_RightShift) ||
+                    event.keyCode == UInt16(kVK_Control) ||
+                    event.keyCode == UInt16(kVK_RightControl) ||
+                    event.keyCode == UInt16(kVK_Option) ||
+                    event.keyCode == UInt16(kVK_RightOption) ||
+                    event.keyCode == UInt16(kVK_Command) ||
+                    event.keyCode == UInt16(kVK_RightCommand) ||
+                    event.keyCode == UInt16(kVK_CapsLock)
+                
+                // 如果不是修饰键，则添加到pressedKeys并发送
+                if !isModifierKey {
+                    // 首先从pressedKeys中移除可能存在的修饰键
+                    for i in 0..<self.pressedKeys.count {
+                        let key = self.pressedKeys[i]
+                        let keyIsModifier = 
+                            key == UInt16(kVK_Shift) ||
+                            key == UInt16(kVK_RightShift) ||
+                            key == UInt16(kVK_Control) ||
+                            key == UInt16(kVK_RightControl) ||
+                            key == UInt16(kVK_Option) ||
+                            key == UInt16(kVK_RightOption) ||
+                            key == UInt16(kVK_Command) ||
+                            key == UInt16(kVK_RightCommand) ||
+                            key == UInt16(kVK_CapsLock)
+                        
+                        if keyIsModifier {
+                            self.pressedKeys[i] = 255
+                        }
+                    }
+                    
+                    // 然后添加新按下的键
+                    if let index = self.pressedKeys.firstIndex(of: 255) {
+                        self.pressedKeys[index] = event.keyCode
+                        self.kbm.pressKey(keys: self.pressedKeys, modifiers: modifiers)
                     }
                 }
             }
             
-            if !self.pressedKeys.contains(event.keyCode) {
-                if let index = self.pressedKeys.firstIndex(of: 255) {
-                    self.pressedKeys[index] = event.keyCode
+            // 只有在键盘模式下才会截住
+            if AppStatus.isKeyboardMode {
+                return nil
+            }
+
+            return event
+        }
+        
+        NSEvent.addLocalMonitorForEvents(matching: [.keyUp]) { event in
+            
+            // 处理键盘的keyup
+            if AppStatus.isControlling {
+                // 检查释放的键是否是修饰键
+                let isModifierKey = 
+                    event.keyCode == UInt16(kVK_Shift) ||
+                    event.keyCode == UInt16(kVK_RightShift) ||
+                    event.keyCode == UInt16(kVK_Control) ||
+                    event.keyCode == UInt16(kVK_RightControl) ||
+                    event.keyCode == UInt16(kVK_Option) ||
+                    event.keyCode == UInt16(kVK_RightOption) ||
+                    event.keyCode == UInt16(kVK_Command) ||
+                    event.keyCode == UInt16(kVK_RightCommand) ||
+                    event.keyCode == UInt16(kVK_CapsLock)
+                
+                // 如果不是修饰键，才处理键释放
+                if !isModifierKey {
+                    // 当一个键被释放时找到这个键，然后释放它
+                    if let index = self.pressedKeys.firstIndex(of: event.keyCode) {
+                        self.pressedKeys[index] = 255
+                        self.kbm.releaseKey(keys: self.pressedKeys)
+                    }
                 }
             }
             
-            self.kbm.pressKey(keys: self.pressedKeys, modifiers: modifiers)
-            return nil
-        }
-
-        NSEvent.addLocalMonitorForEvents(matching: [.keyUp]) { event in
-            let modifiers = event.modifierFlags
-            let modifierDescription = self.modifierFlagsDescription(modifiers)
-            
-            // Log the key release with its keycode
-            Logger.shared.log(content: "Key released: keyCode=\(event.keyCode), modifiers=\(modifierDescription)")
-            
-            // 移除释放的键
-            if let index = self.pressedKeys.firstIndex(of: event.keyCode) {
-                self.pressedKeys[index] = 255
+            // 只有在键盘模式下才会截住
+            if AppStatus.isKeyboardMode {
+                return nil
             }
             
-            self.kbm.releaseKey(keys: self.pressedKeys)
-            return nil
+            return event
         }
     }
     

@@ -36,6 +36,22 @@ struct AppStatus {
     static var isExit: Bool = false
     static var isLogMode: Bool = false
     static var isAreaOCRing: Bool = false
+    static var isControlling: Bool {
+        get {
+            return isSwitchToggleOn
+        }
+        set {
+            Logger.shared.log(content: "Device control mode changed to: \(newValue ? "controlling" : "not controlling")")
+        }
+    }
+    static var isKeyboardMode: Bool {
+        get {
+            return isSwitchToggleOn
+        }
+        set {
+            Logger.shared.log(content: "Keyboard mode changed to: \(newValue ? "enabled" : "disabled")")
+        }
+    }
     
     static var isKeyboardConnected: Bool? = false
     static var isMouseConnected: Bool? = false
@@ -96,11 +112,15 @@ struct AppStatus {
             if isSoftwareSwitchOn != isHardwareSwitchOn {
                 isSoftwareSwitchOn = isHardwareSwitchOn
                 AppStatus.isSwitchToggleOn = isHardwareSwitchOn
+                isControlling = true
+                isKeyboardMode = true
             }
         } else {
             if isSoftwareSwitchOn != isHardwareSwitchOn {
                 isSoftwareSwitchOn = isHardwareSwitchOn
                 AppStatus.isSwitchToggleOn = isHardwareSwitchOn
+                isControlling = false
+                isKeyboardMode = false
             }
         }
     }
@@ -108,9 +128,12 @@ struct AppStatus {
     static func handleSoftwareSwitchChange() {
         if isSoftwareSwitchOn {
             Logger.shared.log(content: "Software switch toggled: Switching to Target device mode")
-
+            isControlling = true
+            isKeyboardMode = true
         } else {
             Logger.shared.log(content: "Software switch toggled: Switching to Host device mode")
+            isControlling = false
+            isKeyboardMode = false
         }
     }
 }
