@@ -87,6 +87,64 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         // if audioManager.microphonePermissionGranted {
         //     audioManager.prepareAudio()
         // }
+        
+        // 尝试直接使用文件路径
+        let bundle = Bundle.main
+        
+        guard let fileURL = bundle.url(forResource: "DE", withExtension: "json" ) else {
+            print("找不到DE.json文件11111")
+            return
+        }
+        
+        print("找到")
+        // 读取文件数据
+        do {
+            // 读取文件数据
+            let data = try Data(contentsOf: fileURL)
+            
+            // 将数据转换为字符串
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("DE.json文件内容:")
+                print(jsonString)
+                
+                // 解析JSON数据
+                if let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                    // 获取JSON对象中的属性
+                    if let name = jsonObject["name"] as? String {
+                        print("姓名: \(name)")
+                    }
+                    
+                    if let age = jsonObject["age"] as? Int {
+                        print("年龄: \(age)")
+                    }
+                    
+                    if let city = jsonObject["city"] as? String {
+                        print("城市: \(city)")
+                    }
+                    
+                    if let hobbies = jsonObject["hobbies"] as? [String] {
+                        print("爱好: \(hobbies.joined(separator: ", "))")
+                    }
+                    
+                    if let isStudent = jsonObject["isStudent"] as? Bool {
+                        print("是否学生: \(isStudent ? "是" : "否")")
+                    }
+                    
+                    if let contact = jsonObject["contact"] as? [String: String] {
+                        print("联系方式:")
+                        if let email = contact["email"] {
+                            print("  邮箱: \(email)")
+                        }
+                        if let phone = contact["phone"] {
+                            print("  电话: \(phone)")
+                        }
+                    }
+                }
+            }
+        } catch {
+            print("读取DE.json文件失败: \(error.localizedDescription)")
+        }
+       
     }
     
     func windowDidResize(_ notification: Notification) {

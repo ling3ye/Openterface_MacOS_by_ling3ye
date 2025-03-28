@@ -1,0 +1,11 @@
+{
+    "name": "张伟",
+    "age": 28,
+    "city": "上海",
+    "hobbies": ["读书", "旅行", "编程"],
+    "isStudent": false,
+    "contact": {
+      "email": "zhangwei@example.com",
+      "phone": "123-456-7890"
+    }
+}

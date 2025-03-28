@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2950CB512CE33C8D00888267 /* USBDevicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2950CB502CE33C8D00888267 /* USBDevicesView.swift */; };
 		295DCFB62D76A8A20034BB1E /* AudioManger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295DCFB52D76A8A20034BB1E /* AudioManger.swift */; };
+		2990D2982D969C67000C0AB5 /* DE.json in Resources */ = {isa = PBXBuildFile; fileRef = 2990D2972D969C61000C0AB5 /* DE.json */; };
 		29E5E0E02D6D5FBD00E1849A /* ResetFactoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E5E0DF2D6D5FBD00E1849A /* ResetFactoryView.swift */; };
 		5308F43C2B5A1A3800BADF35 /* UserSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5308F43B2B5A1A3800BADF35 /* UserSetting.swift */; };
 		5308F43E2B5A674E00BADF35 /* MouseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5308F43D2B5A674E00BADF35 /* MouseManager.swift */; };
@@ -64,6 +65,7 @@
 /* Begin PBXFileReference section */
 		2950CB502CE33C8D00888267 /* USBDevicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = USBDevicesView.swift; sourceTree = "<group>"; };
 		295DCFB52D76A8A20034BB1E /* AudioManger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManger.swift; sourceTree = "<group>"; };
+		2990D2972D969C61000C0AB5 /* DE.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DE.json; sourceTree = "<group>"; };
 		29E5E0DF2D6D5FBD00E1849A /* ResetFactoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetFactoryView.swift; sourceTree = "<group>"; };
 		5308F43B2B5A1A3800BADF35 /* UserSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSetting.swift; sourceTree = "<group>"; };
 		5308F43D2B5A674E00BADF35 /* MouseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseManager.swift; sourceTree = "<group>"; };
@@ -129,6 +131,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2990D2942D969BC2000C0AB5 /* KeyboardLayout */ = {
+			isa = PBXGroup;
+			children = (
+				2990D2972D969C61000C0AB5 /* DE.json */,
+			);
+			path = KeyboardLayout;
+			sourceTree = "<group>";
+		};
 		537F65D02B4E4C6100825B4F /* Settings */ = {
 			isa = PBXGroup;
 			children = (
@@ -159,6 +169,7 @@
 		5394F9662B57DC4000DB44ED /* Target */ = {
 			isa = PBXGroup;
 			children = (
+				2990D2942D969BC2000C0AB5 /* KeyboardLayout */,
 				5308F43D2B5A674E00BADF35 /* MouseManager.swift */,
 				531BAC392B5E47F000950525 /* MouseMapper.swift */,
 				531BAC352B5E40BA00950525 /* KeyBoardManager.swift */,
@@ -381,6 +392,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2990D2982D969C67000C0AB5 /* DE.json in Resources */,
 				53FBE7B52B3D66D6007785B0 /* Preview Assets.xcassets in Resources */,
 				53FBE7B22B3D66D6007785B0 /* Assets.xcassets in Resources */,
 			);
